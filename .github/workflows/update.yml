@@ -5,16 +5,13 @@ on:
     - cron: "17 6 * * 1-5"   # UTC 06:17 = 台灣 14:17，週一到週五收盤後
   workflow_dispatch:          # 可以在 Actions 頁籤手動按 Run workflow
   push:
-    branches: [main]          # 合併 PR 後也會重抓並部署
+    branches: [main]          # 合併 PR 後也會重新部署
+    paths-ignore: ["**.md"]   # 只改 README 不重跑
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: false
 
 jobs:
   update:
@@ -24,30 +21,12 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
-
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
-
       - run: pip install -r requirements.txt
-
-      - name: 抓資料
-        run: python fetch.py
-
-      - name: 資料有變才 commit
-        run: |
-          if git diff --quiet data.json; then
-            echo "資料沒有變化，不 commit"
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
-          git add data.json
-          git commit -m "data: $(TZ=Asia/Taipei date +%F)"
-          git push
-
-      - uses: actions/configure-pages@v6
+      - run: python fetch.py
       - uses: actions/upload-pages-artifact@v5
         with:
           path: .

@@ -1,13 +1,10 @@
 {
   "name": "demo",
   "image": "mcr.microsoft.com/devcontainers/python:3.12",
-  "postCreateCommand": "pip install -r requirements.txt",
+  "postCreateCommand": "pip install -r requirements.txt && python fetch.py",
   "postAttachCommand": "python -m http.server 8000",
   "forwardPorts": [8000],
   "portsAttributes": {
     "8000": { "label": "網站預覽", "onAutoForward": "openPreview" }
-  },
-  "customizations": {
-    "vscode": { "extensions": ["ms-python.python"] }
   }
 }

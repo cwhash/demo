@@ -5,7 +5,7 @@
 台積電（2330）最近一個月的 K 線、均線與成交量。
 
 - 網站：https://cwhash.github.io/demo/
-- 資料：GitHub Actions 每個交易日 14:17（台灣時間）自動抓取 Yahoo Finance 日 K，更新 `data.json` 並部署到 GitHub Pages
+- 資料：GitHub Actions 每個交易日 14:17（台灣時間）自動抓取 Yahoo Finance 日 K，產生 `data.json` 後直接部署到 GitHub Pages（資料不 commit 進 repo）
 
 ## 檔案
 
@@ -13,9 +13,9 @@
 |---|---|
 | `fetch.py` | 抓資料、算均線，輸出 `data.json` |
 | `index.html` | 讀 `data.json` 畫圖 |
-| `.github/workflows/update.yml` | 排程 / 手動 / 合併後：抓資料 → commit → 部署 Pages |
+| `.github/workflows/update.yml` | 排程 / 手動 / 合併後：抓資料 → 部署 Pages |
 | `.github/workflows/ci.yml` | PR 時檢查 `fetch.py` 能正常產生資料 |
-| `.devcontainer/devcontainer.json` | Codespaces 環境：自動安裝套件、啟動預覽 |
+| `.devcontainer/devcontainer.json` | Codespaces 環境：自動安裝套件、抓資料、啟動預覽 |
 
 ## 在 Codespaces 試試看
 
