@@ -10,8 +10,8 @@ import yfinance as yf
 
 # ===== ✏️ Demo 可以現場修改的設定 =====
 # 改完存檔，在終端機執行 python fetch.py，再重新整理預覽
-SYMBOL = os.getenv("SYMBOL", "0050.TW")    # 股票代號：2330.TW 台積電 / 2317.TW 鴻海 / 0050.TW 元大台灣50
-NAME = os.getenv("NAME", "元大台灣50")     # 網頁標題顯示的名稱
+SYMBOL = os.getenv("SYMBOL", "2330.TW")    # 股票代號：2330.TW 台積電 / 2317.TW 鴻海 / 0050.TW 元大台灣50
+NAME = os.getenv("NAME", "台積電")     # 網頁標題顯示的名稱
 START = "2026-01-01"                       # 區間開始日（含）
 END = "2026-10-31"                         # 區間結束日（含）
 MA = [5, 20]                               # 均線天數，例如 [10, 60]
