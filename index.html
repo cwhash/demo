@@ -6,16 +6,18 @@
   <title>股價看板</title>
   <script src="https://unpkg.com/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></script>
   <style>
-    /* ===== 可以現場修改的畫面設定 ===== */
+    /* ===== ✏️ Demo 可以現場修改的顏色 =====
+       存檔後重新整理預覽即可，不用重跑 fetch.py
+       美股習慣「綠漲紅跌」：把 --up 和 --down 的色碼對調 */
     :root {
       --up: #e5484d;     /* 漲：台股紅 */
       --down: #30a46c;   /* 跌：台股綠 */
-      --bg: #f7f7f8;
-      --card: #ffffff;
-      --text: #1c1c1e;
-      --muted: #6e6e73;
+      --bg: #f7f7f8;     /* 頁面背景 */
+      --card: #ffffff;   /* 卡片背景 */
+      --text: #1c1c1e;   /* 主要文字 */
+      --muted: #6e6e73;  /* 次要文字 */
     }
-    /* ================================= */
+    /* ===================================== */
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); color: var(--text);
            font-family: system-ui, "Noto Sans TC", sans-serif; }
@@ -61,23 +63,32 @@
 </main>
 
 <script>
-const MA_COLORS = ["#f5a524", "#3b82f6", "#a855f7", "#14b8a6"];
+// ===== ✏️ Demo 可以現場修改的設定 =====
+const ROWS = 5;                                                  // 表格顯示最近幾天
+const MA_COLORS = ["#f5a524", "#3b82f6", "#a855f7", "#14b8a6"];  // 均線顏色，依 fetch.py 的 MA 順序
+// =====================================
+
+// 小工具：讀 CSS 變數、數字格式化、漲跌正負號與顏色
 const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 const fmt = (n, d = 2) => n == null ? "-" : n.toLocaleString("zh-TW", { minimumFractionDigits: d, maximumFractionDigits: d });
 const sign = n => (n > 0 ? "+" : "") + fmt(n);
 const cls = n => n > 0 ? "up" : n < 0 ? "down" : "";
 
+// 讀 fetch.py 產生的 data.json（加時間參數避免瀏覽器快取舊資料）
 fetch("data.json?t=" + Date.now()).then(r => r.json()).then(({ symbol, name, ma, rows }) => {
   const last = rows.at(-1), first = rows[0];
   const up = css("--up"), down = css("--down");
 
+  // 標題
   document.title = `${name} ${symbol}`;
   document.getElementById("title").textContent = `${name}（${symbol.replace(".TW", "")}）`;
   document.getElementById("sub").textContent = `${first.Date} ～ ${last.Date}，共 ${rows.length} 個交易日`;
 
+  // 上方四張卡片
   const set = (id, text, c = "") => { const el = document.getElementById(id); el.textContent = text; el.className = "value " + c; };
   set("close", fmt(last.Close), cls(last.Change));
   set("change", `${sign(last.Change)} (${sign(last.ChangePct)}%)`, cls(last.Change));
+  // 區間漲跌 = 最後收盤 ÷ 區間第一天的前一日收盤
   const rangePct = (last.Close / (first.Close - first.Change) - 1) * 100;
   set("range", `${sign(rangePct)}%`, cls(rangePct));
   set("hilo", `${fmt(Math.max(...rows.map(r => r.High)), 0)} / ${fmt(Math.min(...rows.map(r => r.Low)), 0)}`);
@@ -102,13 +113,14 @@ fetch("data.json?t=" + Date.now()).then(r => r.json()).then(({ symbol, name, ma,
   const vol = chart.addHistogramSeries({ priceScaleId: "vol", priceFormat: { type: "volume" } });
   chart.priceScale("vol").applyOptions({ scaleMargins: { top: 0.8, bottom: 0 } });
   vol.setData(rows.map(r => ({ time: r.Date, value: r.Volume / 1000, color: (r.Change >= 0 ? up : down) + "66" })));
+  // 視窗大小改變時，讓 K 線填滿寬度
   new ResizeObserver(() => chart.timeScale().fitContent()).observe(el);
 
   document.getElementById("legend").innerHTML = ma
     .map((n, i) => `<span style="color:${MA_COLORS[i % MA_COLORS.length]}">━</span> MA${n}`).join("　");
 
-  // 表格：最近 5 筆
-  document.getElementById("rows").innerHTML = rows.slice(-5).reverse().map(r => `
+  // 表格：最近 ROWS 天，新的在上面
+  document.getElementById("rows").innerHTML = rows.slice(-ROWS).reverse().map(r => `
     <tr><td>${r.Date}</td>
       <td class="hide-sm">${fmt(r.Open)}</td><td class="hide-sm">${fmt(r.High)}</td><td class="hide-sm">${fmt(r.Low)}</td>
       <td class="${cls(r.Change)}">${fmt(r.Close)}</td>
