@@ -153,14 +153,3 @@ gh pr create --fill
 **總結：Codespaces 負責「寫」，Actions 負責「跑」。**
 
 ---
-
-## Demo 前檢查
-
-- [ ] 先開好一個 Codespace，確認預覽會自動出現
-- [ ] 預演步驟 4、5，確認 CI 綠燈，然後**關閉 PR、不要合併**（正式 demo 時才合併）：
-  ```bash
-  gh pr close --delete-branch
-  ```
-  再刪掉預演用的 Codespace，正式 demo 時開新的，才不會遇到分支已存在或檔案已修改
-- [ ] 確認網站目前是 0050（2026 年 10 月），demo 時才有對比
-- [ ] demo 結束後刪除 Codespace，避免佔用儲存空間
