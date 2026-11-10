@@ -14,15 +14,11 @@ jobs:
     strategy:
       fail-fast: false         # 一檔失敗，其他檔照樣跑完
       matrix:
-        include:
-          - { symbol: "2330.TW", name: "台積電" }
-          - { symbol: "2317.TW", name: "鴻海" }
-          - { symbol: "0050.TW", name: "元大台灣50" }
+        symbol: ["2330.TW", "2317.TW", "0050.TW"]
 
-    name: 檢查 ${{ matrix.name }}
+    name: 檢查 ${{ matrix.symbol }}
     env:                       # 用環境變數覆蓋 fetch.py 裡的預設股票
       SYMBOL: ${{ matrix.symbol }}
-      NAME: ${{ matrix.name }}
 
     steps:
       - uses: actions/checkout@v7

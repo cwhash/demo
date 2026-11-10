@@ -100,14 +100,15 @@ GitHub 內建的自動化工具：**某件事發生時，自動在雲端機器�
 
 ### 2. 改程式（1 分鐘）
 
-打開 `fetch.py`，修改最上方 ✏️ 的設定：換成台積電、改看 2026 上半年：
+打開 `fetch.py`，修改最上方 ✏️ 的設定：換成鴻海、改看 2026 上半年：
 
 ```python
-SYMBOL = os.getenv("SYMBOL", "2330.TW")
-NAME = os.getenv("NAME", "台積電")
+SYMBOL = os.getenv("SYMBOL", "2317.TW")
 START = "2026-01-01"
 END = "2026-06-30"
 ```
+
+> 💬 只要改代號，名稱會自動對應；不在對照表裡的股票會顯示英文名。
 
 在終端機執行，再重新整理右側預覽：
 
@@ -127,7 +128,7 @@ python fetch.py
 
 ```bash
 git checkout -b demo-change
-git commit -am "換成台積電"
+git commit -am "換成鴻海 2026 上半年"
 git push -u origin demo-change
 gh pr create --fill
 ```
@@ -148,7 +149,7 @@ gh pr create --fill
 
 > 💬 等待時講：合併到 main 會觸發另一個 workflow，抓資料並部署到 GitHub Pages。這就是 CI/CD：CI 檢查、CD 部署。
 
-約 30 秒後打開 https://cwhash.github.io/demo/ ，正式網站已經變成台積電 2026 上半年。
+約 30 秒後打開 https://cwhash.github.io/demo/ ，正式網站已經變成鴻海 2026 上半年。
 
 **總結：Codespaces 負責「寫」，Actions 負責「跑」。**
 

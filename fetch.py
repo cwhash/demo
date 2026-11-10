@@ -11,18 +11,22 @@ import yfinance as yf
 # ===== ✏️ Demo 可以現場修改的設定 =====
 # 改完存檔，在終端機執行 python fetch.py，再重新整理預覽
 SYMBOL = os.getenv("SYMBOL", "2330.TW")    # 股票代號：2330.TW 台積電 / 2317.TW 鴻海 / 0050.TW 元大台灣50
-NAME = os.getenv("NAME", "台積電")     # 網頁標題顯示的名稱
 START = "2026-01-01"                       # 區間開始日（含）
 END = "2026-10-31"                         # 區間結束日（含）
 MA = [5, 20]                               # 均線天數，例如 [10, 60]
 # =====================================
 # os.getenv 讓 CI 的 matrix 可以用環境變數換股票；沒設定時就用上面的預設值
 
+# 常用股票的中文名；不在表裡的就用 yfinance 提供的英文名
+NAMES = {"2330.TW": "台積電", "2317.TW": "鴻海", "2454.TW": "聯發科", "0050.TW": "元大台灣50"}
+ticker = yf.Ticker(SYMBOL)
+NAME = NAMES.get(SYMBOL) or ticker.info.get("longName") or SYMBOL
+
 start, end = pd.Timestamp(START), pd.Timestamp(END)
 
 # 往前多抓 120 天讓均線在區間第一天就有值；yfinance 的 end 不含當天，所以加 1 天
 # auto_adjust=False：用原始收盤價，不受日後除權息調整影響，固定區間的數字才不會變
-df = yf.Ticker(SYMBOL).history(
+df = ticker.history(
     start=start - pd.Timedelta(days=120), end=end + pd.Timedelta(days=1), auto_adjust=False
 )
 if df.empty:

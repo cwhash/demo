@@ -46,7 +46,6 @@
 
   <div class="cards">
     <div class="card"><div class="label">收盤價</div><div class="value" id="close">-</div></div>
-    <div class="card"><div class="label">漲跌</div><div class="value" id="change">-</div></div>
     <div class="card"><div class="label">區間漲跌</div><div class="value" id="range">-</div></div>
     <div class="card"><div class="label">區間高 / 低</div><div class="value" id="hilo">-</div></div>
   </div>
@@ -64,7 +63,7 @@
 
 <script>
 // ===== ✏️ Demo 可以現場修改的設定 =====
-const ROWS = 5;                                                  // 表格顯示最近幾天
+const ROWS = 5;                                                  // 表格在區間裡均勻挑幾天
 const MA_COLORS = ["#f5a524", "#3b82f6", "#a855f7", "#14b8a6"];  // 均線顏色，依 fetch.py 的 MA 順序
 // =====================================
 
@@ -84,12 +83,11 @@ fetch("data.json?t=" + Date.now()).then(r => r.json()).then(({ symbol, name, ma,
   document.getElementById("title").textContent = `${name}（${symbol.replace(".TW", "")}）`;
   document.getElementById("sub").textContent = `${first.Date} ～ ${last.Date}，共 ${rows.length} 個交易日`;
 
-  // 上方四張卡片
+  // 上方三張卡片：收盤價、區間漲跌、區間高 / 低
   const set = (id, text, c = "") => { const el = document.getElementById(id); el.textContent = text; el.className = "value " + c; };
-  set("close", fmt(last.Close), cls(last.Change));
-  set("change", `${sign(last.Change)} (${sign(last.ChangePct)}%)`, cls(last.Change));
   // 區間漲跌 = 最後收盤 ÷ 區間第一天的前一日收盤
   const rangePct = (last.Close / (first.Close - first.Change) - 1) * 100;
+  set("close", fmt(last.Close), cls(rangePct));   // 顏色跟著區間漲跌
   set("range", `${sign(rangePct)}%`, cls(rangePct));
   set("hilo", `${fmt(Math.max(...rows.map(r => r.High)), 0)} / ${fmt(Math.min(...rows.map(r => r.Low)), 0)}`);
 
@@ -119,8 +117,9 @@ fetch("data.json?t=" + Date.now()).then(r => r.json()).then(({ symbol, name, ma,
   document.getElementById("legend").innerHTML = ma
     .map((n, i) => `<span style="color:${MA_COLORS[i % MA_COLORS.length]}">━</span> MA${n}`).join("　");
 
-  // 表格：最近 ROWS 天，新的在上面
-  document.getElementById("rows").innerHTML = rows.slice(-ROWS).reverse().map(r => `
+  // 表格：在區間裡均勻挑 ROWS 天（第一天、最後一天一定會在）
+  const picks = [...new Set(Array.from({ length: ROWS }, (_, i) => Math.round(i * (rows.length - 1) / (ROWS - 1))))];
+  document.getElementById("rows").innerHTML = picks.map(i => rows[i]).map(r => `
     <tr><td>${r.Date}</td>
       <td class="hide-sm">${fmt(r.Open)}</td><td class="hide-sm">${fmt(r.High)}</td><td class="hide-sm">${fmt(r.Low)}</td>
       <td class="${cls(r.Change)}">${fmt(r.Close)}</td>
