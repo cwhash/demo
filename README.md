@@ -32,5 +32,3 @@ python fetch.py
 - 改區間：`SHOW = 3`
 - 改顏色：`index.html` 開頭的 `--up` / `--down`
 - 分享預覽：Ports 面板 → 8000 → 右鍵 → Port Visibility → Public
-
-僅供展示，非投資建議。
