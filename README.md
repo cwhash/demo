@@ -1,7 +1,7 @@
 # 股價看板 demo
 
 [![CI](https://github.com/cwhash/demo/actions/workflows/ci.yml/badge.svg)](https://github.com/cwhash/demo/actions/workflows/ci.yml)
-[![部署](https://github.com/cwhash/demo/actions/workflows/update.yml/badge.svg)](https://github.com/cwhash/demo/actions/workflows/update.yml)
+[![部署](https://github.com/cwhash/demo/actions/workflows/deploy.yml/badge.svg)](https://github.com/cwhash/demo/actions/workflows/deploy.yml)
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/cwhash/demo?quickstart=1)
 
@@ -20,10 +20,9 @@ GitHub 內建的自動化工具：**某件事發生時，自動在雲端機器�
 
 | 功能 | 說明 | 本專案用在哪 |
 |---|---|---|
-| 觸發條件 | push、PR、排程（cron）、手動按鈕等 | `ci.yml`：PR 時；`update.yml`：排程、手動、合併後 |
+| 觸發條件 | push、PR、排程（cron）、手動按鈕等 | `ci.yml`：PR 時；`deploy.yml`：合併後、手動 |
 | CI（持續整合） | 每次改程式自動檢查，有問題就紅燈 | `ci.yml` 檢查 `fetch.py` 能否抓到資料 |
-| CD（持續部署） | 檢查通過後自動部署 | `update.yml` 部署到 GitHub Pages |
-| 排程 | 定時自動執行 | 每個交易日 14:17 抓收盤資料 |
+| CD（持續部署） | 檢查通過後自動部署 | `deploy.yml` 部署到 GitHub Pages |
 | Matrix | 同一份設定用不同參數平行執行 | CI 同時檢查三檔股票 |
 | Marketplace | 直接套用別人寫好的步驟 | `actions/checkout`、`setup-python`、`deploy-pages` |
 | Job Summary | 執行結果頁顯示自訂的 Markdown 報告 | 顯示當日收盤表格 |
@@ -91,7 +90,7 @@ GitHub 內建的自動化工具：**某件事發生時，自動在雲端機器�
 
 ---
 
-## Demo 操作流程（約 10 分鐘）
+## Demo 操作流程（約 9 分鐘）
 
 ### 1. 開 Codespace（1 分鐘）
 
@@ -101,11 +100,13 @@ GitHub 內建的自動化工具：**某件事發生時，自動在雲端機器�
 
 ### 2. 改程式（1 分鐘）
 
-打開 `fetch.py`，把最上方 ✏️ 的設定從 0050 改成台積電：
+打開 `fetch.py`，修改最上方 ✏️ 的設定：換成台積電、改看 2026 上半年：
 
 ```python
 SYMBOL = os.getenv("SYMBOL", "2330.TW")
 NAME = os.getenv("NAME", "台積電")
+START = "2026-01-01"
+END = "2026-06-30"
 ```
 
 在終端機執行，再重新整理右側預覽：
@@ -143,17 +144,11 @@ gh pr create --fill
 
 ### 6. 合併 → 自動部署（2 分鐘）
 
-在 PR 頁面按 **Merge**，到 **Actions** 頁籤看「更新資料並部署網站」開始執行。
+在 PR 頁面按 **Merge**，到 **Actions** 頁籤看「部署網站」開始執行。
 
 > 💬 等待時講：合併到 main 會觸發另一個 workflow，抓資料並部署到 GitHub Pages。這就是 CI/CD：CI 檢查、CD 部署。
 
-約 30 秒後打開 https://cwhash.github.io/demo/ ，正式網站已經變成台積電。
-
-### 7. 收尾：排程（1 分鐘）
-
-打開 `.github/workflows/update.yml`，指著 `cron` 那一行：
-
-> 💬 同一個 workflow 每個交易日 14:17 也會自動跑，所以網站每天都會更新，不需要任何人操作。
+約 30 秒後打開 https://cwhash.github.io/demo/ ，正式網站已經變成台積電 2026 上半年。
 
 **總結：Codespaces 負責「寫」，Actions 負責「跑」。**
 
@@ -167,5 +162,5 @@ gh pr create --fill
   gh pr close --delete-branch
   ```
   再刪掉預演用的 Codespace，正式 demo 時開新的，才不會遇到分支已存在或檔案已修改
-- [ ] 確認網站目前是 0050，demo 時才有「換成台積電」的對比
+- [ ] 確認網站目前是 0050（2026 年 10 月），demo 時才有對比
 - [ ] demo 結束後刪除 Codespace，避免佔用儲存空間

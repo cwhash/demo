@@ -1,11 +1,9 @@
 # 抓資料 → 部署到 GitHub Pages
-# 結果頁上方的 Summary 會顯示 fetch.py 寫的 Job Summary（今日收盤表格）
-name: 更新資料並部署網站
+# 結果頁上方的 Summary 會顯示 fetch.py 寫的 Job Summary（收盤表格）
+name: 部署網站
 
 # ===== 觸發條件：什麼時候跑 =====
 on:
-  schedule:
-    - cron: "17 6 * * 1-5"    # ✏️ 分 時 日 月 星期，用 UTC。06:17 UTC = 台灣 14:17，週一到週五
   workflow_dispatch:           # Actions 頁籤的「Run workflow」手動按鈕
   push:
     branches: [main]           # 合併到 main 後自動部署
