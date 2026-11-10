@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: 抓資料
+        run: python fetch.py
+
+      - name: 檢查 data.json
+        run: |
+          python -c "
+          import json
+          d = json.load(open('data.json', encoding='utf-8'))
+          assert d['rows'], '沒有資料'
+          assert all(r['Close'] > 0 for r in d['rows']), '收盤價異常'
+          print('OK：', d['name'], d['symbol'], len(d['rows']), '筆')
+          "
