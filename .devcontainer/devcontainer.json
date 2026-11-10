@@ -1,8 +1,22 @@
+// Codespaces 的環境設定：每個人開 Codespace 都會拿到一模一樣的環境
+// 修改這個檔案後：Ctrl+Shift+P → Codespaces: Rebuild Container
 {
   "name": "demo",
+
+  // 基礎環境：已裝好 Python 3.12、Git、常用 VS Code 擴充套件
   "image": "mcr.microsoft.com/devcontainers/python:3.12",
+
+  // ✏️ Demo：取消下面這行的註解 → 存檔 → Rebuild → 終端機輸入 node -v
+  // "features": { "ghcr.io/devcontainers/features/node:1": {} },
+
+  // 建立 Codespace 時跑一次：安裝套件、抓資料
   "postCreateCommand": "pip install -r requirements.txt && python fetch.py",
+
+  // 每次連上 Codespace 時跑：啟動網站
   "postAttachCommand": "python -m http.server 8000",
+
+  // 轉發 8000 port，並自動在右側開預覽
+  // 分享給別人：Ports 面板 → 8000 → 右鍵 → Port Visibility → Public
   "forwardPorts": [8000],
   "portsAttributes": {
     "8000": { "label": "網站預覽", "onAutoForward": "openPreview" }

@@ -1,34 +1,44 @@
+# 抓資料 → 部署到 GitHub Pages
+# 結果頁上方的 Summary 會顯示 fetch.py 寫的 Job Summary（今日收盤表格）
 name: 更新資料並部署網站
 
+# ===== 觸發條件：什麼時候跑 =====
 on:
   schedule:
-    - cron: "17 6 * * 1-5"   # UTC 06:17 = 台灣 14:17，週一到週五收盤後
-  workflow_dispatch:          # 可以在 Actions 頁籤手動按 Run workflow
+    - cron: "17 6 * * 1-5"    # ✏️ 分 時 日 月 星期，用 UTC。06:17 UTC = 台灣 14:17，週一到週五
+  workflow_dispatch:           # Actions 頁籤的「Run workflow」手動按鈕
   push:
-    branches: [main]          # 合併 PR 後也會重新部署
-    paths-ignore: ["**.md"]   # 只改 README 不重跑
+    branches: [main]           # 合併到 main 後自動部署
+    paths-ignore: ["**.md"]    # 只改 Markdown（例如 README）就不跑
 
+# ===== 權限：只給需要的 =====
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: read     # 讀程式碼（不能改）
+  pages: write       # 部署 GitHub Pages
+  id-token: write    # OIDC：部署時不需要存任何密碼
 
 jobs:
   update:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest     # GitHub 提供的 Linux 機器
+    timeout-minutes: 5         # 卡住超過 5 分鐘就自動取消
     environment:
-      name: github-pages
+      name: github-pages       # repo 首頁右側 Deployments 會顯示每次部署
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@v7          # 取得程式碼
+
+      - uses: actions/setup-python@v7      # 安裝 Python
         with:
           python-version: "3.12"
-          cache: pip
+          cache: pip                       # 快取套件，第二次起安裝更快
+
       - run: pip install -r requirements.txt
-      - run: python fetch.py
-      - uses: actions/upload-pages-artifact@v5
+
+      - run: python fetch.py               # 抓資料 → data.json，並寫入 Job Summary
+
+      - uses: actions/upload-pages-artifact@v5   # 打包整個資料夾（含 data.json）
         with:
           path: .
+
       - id: deploy
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@v5      # 部署到 https://cwhash.github.io/demo/

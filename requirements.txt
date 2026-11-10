@@ -1,1 +1,2 @@
+# 只需要 yfinance，它會一起安裝 pandas
 yfinance

@@ -1,3 +1,5 @@
+# PR 時自動檢查：fetch.py 能不能正常抓到資料
+# 用 matrix 同時測三檔股票，PR 頁面會看到三個 job 平行執行
 name: CI
 
 on:
@@ -6,6 +8,22 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    # ===== ✏️ matrix：每一組設定各跑一個 job =====
+    strategy:
+      fail-fast: false         # 一檔失敗，其他檔照樣跑完
+      matrix:
+        include:
+          - { symbol: "2330.TW", name: "台積電" }
+          - { symbol: "2317.TW", name: "鴻海" }
+          - { symbol: "0050.TW", name: "元大台灣50" }
+
+    name: 檢查 ${{ matrix.name }}
+    env:                       # 用環境變數覆蓋 fetch.py 裡的預設股票
+      SYMBOL: ${{ matrix.symbol }}
+      NAME: ${{ matrix.name }}
+
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -13,4 +31,4 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: pip install -r requirements.txt
-      - run: python fetch.py   # 抓不到資料會報錯，CI 就會變紅燈
+      - run: python fetch.py   # 抓不到資料會報錯 → 紅燈
