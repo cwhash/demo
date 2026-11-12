@@ -22,6 +22,7 @@
     body { margin: 0; background: var(--bg); color: var(--text);
            font-family: system-ui, "Noto Sans TC", sans-serif; }
     main { max-width: 960px; margin: 0 auto; padding: 24px 16px; }
+    .updated { color: var(--muted); font-size: 12px; margin: 0 0 8px; }
     h1 { margin: 0 0 4px; font-size: 28px; }
     .sub { color: var(--muted); margin: 0 0 20px; }
     .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
@@ -41,6 +42,7 @@
 </head>
 <body>
 <main>
+  <p class="updated" id="updated" hidden>網站更新：<time id="build-time"></time>（台灣時間）</p>
   <h1 id="title">股價看板</h1>
   <p class="sub" id="sub">載入中…</p>
 
@@ -72,6 +74,22 @@ const css = name => getComputedStyle(document.documentElement).getPropertyValue(
 const fmt = (n, d = 2) => n == null ? "-" : n.toLocaleString("zh-TW", { minimumFractionDigits: d, maximumFractionDigits: d });
 const sign = n => (n > 0 ? "+" : "") + fmt(n);
 const cls = n => n > 0 ? "up" : n < 0 ? "down" : "";
+
+// 時間由部署流程產生；本機預覽沒有此檔案時不顯示，也不影響股價載入。
+fetch("build-info.json", { cache: "no-store" }).then(r => {
+  if (!r.ok) throw new Error("沒有建置時間");
+  return r.json();
+}).then(({ built_at }) => {
+  const date = new Date(built_at);
+  if (Number.isNaN(date.getTime())) return;
+  const time = document.getElementById("build-time");
+  time.dateTime = built_at;
+  time.textContent = new Intl.DateTimeFormat("zh-TW", {
+    timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23",
+  }).format(date);
+  document.getElementById("updated").hidden = false;
+}).catch(() => {});
 
 // 讀 fetch.py 產生的 data.json（加時間參數避免瀏覽器快取舊資料）
 fetch("data.json?t=" + Date.now()).then(r => r.json()).then(({ symbol, name, ma, rows }) => {

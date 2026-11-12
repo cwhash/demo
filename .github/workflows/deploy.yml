@@ -34,6 +34,18 @@ jobs:
 
       - run: python fetch.py               # 抓資料 → data.json，並寫入 Job Summary
 
+      - name: 產生網站更新時間
+        shell: python
+        run: |
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          Path("build-info.json").write_text(
+              json.dumps({"built_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}),
+              encoding="utf-8",
+          )
+
       - uses: actions/upload-pages-artifact@v5   # 打包整個資料夾（含 data.json）
         with:
           path: .
